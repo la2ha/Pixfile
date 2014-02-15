@@ -1,0 +1,18 @@
+<?php namespace La2ha\Pixfile\Facades;
+
+use Illuminate\Support\Facades\Facade;
+
+class Pixfile extends Facade
+{
+
+    /**
+     * Get the registered name of the component.
+     *
+     * @return string
+     */
+    protected static function getFacadeAccessor()
+    {
+        return 'pixfile';
+    }
+
+}
