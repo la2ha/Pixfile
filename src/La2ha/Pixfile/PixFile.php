@@ -42,7 +42,14 @@ class PixFile
         $fh       = fopen($filepath, 'w');
         $bytes    = fwrite($fh, $bin);
         fclose($fh);
-        if ($bytes !== FALSE) return $filepath;
+        if ($bytes !== FALSE) return new FileInfo(array(
+                'origname' => $origFilename,
+                'name'     => $filename,
+                'dirpath'  => $saveDir,
+                'filepath' => $filepath,
+                'size' => $bytes,
+            )
+        );
         else throw new FwriteException('Can`t write to file');
     }
 

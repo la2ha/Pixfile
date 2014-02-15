@@ -3,9 +3,15 @@
 return array(
     'folder'            => public_path(),
 
+    'webpatchCleaner'   => public_path(),
+
+    'basepatchCleaner'  => base_path(),
+
+    'toString'          => 'webpatch',
+    
     'encrypt'           => true,
 
-    'mkdirMode'           => 0777,
+    'mkdirMode'         => 0777,
 
     'incrementAttempts' => 100,
 
