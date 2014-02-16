@@ -3,14 +3,19 @@ namespace La2ha\Pixfile;
 class PixFile
 {
     protected $helper;
+
     public $folder;
+
     public $encrypt;
+
+    public $overwrite;
 
     function __construct(Helper $helper)
     {
-        $this->helper  = $helper;
-        $this->folder  = \Config::get('pixfile::folder');
-        $this->encrypt = \Config::get('pixfile::encrypt');
+        $this->helper    = $helper;
+        $this->folder    = \Config::get('pixfile::folder');
+        $this->encrypt   = \Config::get('pixfile::encrypt');
+        $this->overwrite = \Config::get('pixfile::overwrite');
 
     }
 
@@ -18,7 +23,11 @@ class PixFile
     {
         $urlinfo  = parse_url($image_url);
         $filename = basename($urlinfo['path']); // имя файла узнаем
-        $bin      = file_get_contents($image_url);
+        try {
+            $bin = file_get_contents($image_url);
+        } catch (\Exception $e) {
+            throw new GetFileException($e->getMessage());
+        }
         if ($bin === FALSE)
             throw new GetFileException('Can`t download file');
         return $this->saveBin($bin, $dir, $filename);
@@ -47,7 +56,7 @@ class PixFile
                 'name'     => $filename,
                 'dirpath'  => $saveDir,
                 'filepath' => $filepath,
-                'size' => $bytes,
+                'size'     => $bytes,
             )
         );
         else throw new FwriteException('Can`t write to file');
@@ -76,7 +85,7 @@ class PixFile
             $new_filename = $this->helper->stringToAlias($file_name);
             $filename     = $new_filename . $ext;
         }
-        if (!file_exists($path . $filename)) {
+        if ($this->overwrite or !file_exists($path . $filename)) {
             return $filename;
         }
         $filename = str_replace($ext, '', $filename);
@@ -99,6 +108,12 @@ class PixFile
     public function  setFolder($folder)
     {
         $this->folder = $folder;
+        return $this;
+    }
+
+    public function  setOverwrite($overwrite)
+    {
+        $this->overwrite = $overwrite;
         return $this;
     }
 }

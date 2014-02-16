@@ -15,4 +15,5 @@ class Helper
     {
         return strtr($str, \Config::get('pixfile::filenameTranslit'));
     }
+
 }
