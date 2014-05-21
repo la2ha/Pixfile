@@ -1,18 +1,55 @@
 <?
 namespace La2ha\Pixfile;
+/**
+ * Class FileInfo
+ * @package La2ha\Pixfile
+ */
 class FileInfo
 {
+    /**
+     * @var
+     */
     public $origname;
+    /**
+     * @var
+     */
     public $name;
+    /**
+     * @var
+     */
     public $dirpath;
+    /**
+     * @var
+     */
     public $filepath;
+    /**
+     * @var
+     */
     public $webpatch;
+    /**
+     * @var
+     */
     public $basepatch;
+    /**
+     * @var
+     */
     public $size;
+    /**
+     * @var
+     */
     public $sizeKb;
+    /**
+     * @var
+     */
     public $sizeMb;
+    /**
+     * @var
+     */
     public $mime;
 
+    /**
+     * @param $data
+     */
     function __construct($data)
     {
         $this->origname = $data['origname'];
@@ -24,6 +61,9 @@ class FileInfo
         $this->setMime($data['filepath']);
     }
 
+    /**
+     * @param $bytes
+     */
     protected function setSize($bytes)
     {
         $this->size   = $bytes;
@@ -31,6 +71,9 @@ class FileInfo
         $this->sizeMb = round($this->sizeKb / 1024, 2);
     }
 
+    /**
+     * @param $filepath
+     */
     protected function setWebPatch($filepath)
     {
         $this->webpatch  = mb_substr($filepath, mb_strlen(\Config::get('pixfile::webpatchCleaner')));
@@ -38,11 +81,17 @@ class FileInfo
 
     }
 
+    /**
+     * @param $filepath
+     */
     protected function setMime($filepath)
     {
         $this->mime = mime_content_type($filepath);
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         $param = \Config::get('pixfile::toString');

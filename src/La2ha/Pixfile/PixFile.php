@@ -1,15 +1,34 @@
 <?
 namespace La2ha\Pixfile;
+/**
+ * Class PixFile
+ * @package La2ha\Pixfile
+ */
 class PixFile
 {
+    /**
+     * @var Helper
+     */
     protected $helper;
 
+    /**
+     * @var mixed
+     */
     public $folder;
 
+    /**
+     * @var mixed
+     */
     public $encrypt;
 
+    /**
+     * @var mixed
+     */
     public $overwrite;
 
+    /**
+     * @param Helper $helper
+     */
     function __construct(Helper $helper)
     {
         $this->helper    = $helper;
@@ -19,6 +38,33 @@ class PixFile
 
     }
 
+    /**
+     * @param null $dir
+     * @param $name
+     * @return FileInfo
+     * @throws GetFileException
+     */
+    public function saveFile($dir = null, $name)
+    {
+        if (!\Input::hasFile($name))
+            throw new GetFileException('Can`t get file');
+        $file         = \Input::file($name);
+        $ext          = $file->getClientOriginalExtension();
+        $origFilename = $file->getClientOriginalName();
+        try {
+            $bin = file_get_contents($file->getPathname());
+        } catch (\Exception $e) {
+            throw new GetFileException($e->getMessage());
+        }
+        return $this->saveBin($bin, $dir, $origFilename, $ext);
+    }
+
+    /**
+     * @param $dir
+     * @param $image_url
+     * @return FileInfo
+     * @throws GetFileException
+     */
     public function saveFromUrl($dir, $image_url)
     {
         $urlinfo  = parse_url($image_url);
@@ -33,17 +79,23 @@ class PixFile
         return $this->saveBin($bin, $dir, $filename);
     }
 
+    /**
+     * @param $bin
+     * @param null $dir
+     * @param null $origFilename
+     * @param null $ext
+     * @return FileInfo
+     * @throws FwriteException
+     * @throws EmptyBinException
+     * @throws ExtException
+     */
     public function saveBin($bin, $dir = null, $origFilename = null, $ext = null)
     {
         if (!$bin)
             throw new EmptyBinException('Empty bin data');
         if (!$origFilename and !$ext)
             throw new ExtException('Can not get an extension');
-        if ($dir and $dir{0} != DIRECTORY_SEPARATOR)
-            $dir = DIRECTORY_SEPARATOR . $dir;
-        $saveDir = $this->folder . $dir;
-        if (!file_exists($saveDir))
-            mkdir($saveDir, \Config::get('pixfile::mkdirMode'), true);
+        $saveDir = $this->checkDir($dir);
         if ($origFilename)
             $origFilename = basename($origFilename);
         $filename = $this->checkFilename($saveDir, $origFilename, $ext);
@@ -62,6 +114,14 @@ class PixFile
         else throw new FwriteException('Can`t write to file');
     }
 
+    /**
+     * @param $path
+     * @param null $filename
+     * @param null $ext
+     * @return mixed|null|string
+     * @throws ExtException
+     * @throws AttemptsException
+     */
     public function checkFilename($path, $filename = null, $ext = null)
     {
         if (substr($path, -1) != DIRECTORY_SEPARATOR)
@@ -104,13 +164,35 @@ class PixFile
 
     }
 
+    /**
+     * @param $dir
+     * @return string
+     */
+    protected function checkDir($dir)
+    {
+        if ($dir and $dir{0} != DIRECTORY_SEPARATOR)
+            $dir = DIRECTORY_SEPARATOR . $dir;
+        $saveDir = $this->folder . $dir;
+        if (!file_exists($saveDir))
+            mkdir($saveDir, \Config::get('pixfile::mkdirMode'), true);
+        return $saveDir;
+    }
 
+
+    /**
+     * @param $folder
+     * @return $this
+     */
     public function  setFolder($folder)
     {
         $this->folder = $folder;
         return $this;
     }
 
+    /**
+     * @param $overwrite
+     * @return $this
+     */
     public function  setOverwrite($overwrite)
     {
         $this->overwrite = $overwrite;
